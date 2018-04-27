@@ -1,2 +1,1 @@
-# fo-dicom-viewer
-Dicom viewer for windows
+# Dicom viewer for windows
