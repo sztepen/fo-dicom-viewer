@@ -8,7 +8,7 @@
         Title="fo-dicom-viewer" Height="450" Width="800" WindowStartupLocation="CenterScreen">
     <Grid>
         <TextBox Name="txtDicomFilesPath" Height="26" Margin="0,0,10,354" TextWrapping="Wrap" Text="C:\DICOM\TESTCT3\" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="772"/>
-        <Button Content="Open" HorizontalAlignment="Right" Margin="0,0,707,317" VerticalAlignment="Bottom" Width="75" Click="Button_Click"/>
+        <Button Visibility="Collapsed" Content="Open" HorizontalAlignment="Right" Margin="0,0,707,317" VerticalAlignment="Bottom" Width="75" Click="Button_Click"/>
         <Button Content="Open study" HorizontalAlignment="Left" Margin="90,82,0,0" Width="85" Height="20" VerticalAlignment="Top" Click="Button_Click_1"/>
 
     </Grid>

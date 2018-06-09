@@ -11,6 +11,8 @@ namespace fo_dicom_viewer.Helpers
         public ThumbnailsWindow thumbnailsWindow { get; set; }
         public ToolbarWindow toolbarWindow { get; set; }
 
+        public double CurrentImageWindowLevel { get; set; }
+
 
         public ViewerLayoutManager(ToolbarWindow toolbar)
         {

@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Media.Imaging;
 
 namespace fo_dicom_viewer.ViewModels
@@ -18,10 +19,47 @@ namespace fo_dicom_viewer.ViewModels
 
         private List<DicomFile> _loadedDicomFiles;
         private List<BitmapSource> _loadedBitmapSources;
+        private List<DicomImage> _loadedDicomImages;
+
 
         private int currentImageIndex;
         private int numberOfImages;
-    
+
+     
+
+
+
+
+        private double currentWindowCentre;
+        public double CurrentWindowCentre
+        {
+            get
+            {
+                return currentWindowCentre;
+            }
+            set
+            {
+                currentWindowCentre = value;
+                OnPropertyChanged("CurrentWindowCentre");
+            }
+        }
+
+
+
+        private double currentWindowWidth;
+        public double CurrentWindowWidth
+        {
+            get
+            {
+                return currentWindowWidth;
+            }
+            set
+            {
+                currentWindowWidth = value;  
+                OnPropertyChanged("CurrentWindowWidth");
+            }
+        }
+
 
         public int CurrentImageIndex
         {
@@ -32,10 +70,15 @@ namespace fo_dicom_viewer.ViewModels
             set
             {
                 currentImageIndex = value;
-                OnPropertyChanged("CurrentImage");
+
+                GenerateCurrentImage();
+
+                //OnPropertyChanged("CurrentImage");
                 OnPropertyChanged("CurrentImageIndex");
             }
         }
+
+
 
         public int NumberOfImages
         {
@@ -56,10 +99,26 @@ namespace fo_dicom_viewer.ViewModels
         }
 
 
-        public BitmapSource CurrentImage
-         => NumberOfImages > 0 ? _loadedBitmapSources[Math.Max(CurrentImageIndex - 1, 0)] : null;
+        //public BitmapSource CurrentImage
+        //  => NumberOfImages > 0 ? _loadedBitmapSources[Math.Max(CurrentImageIndex - 1, 0)] : null;
 
-        /*
+
+        private BitmapSource currentImage;
+        public BitmapSource CurrentImage
+        {
+            get
+            {
+                return currentImage;
+            }
+            set
+            {
+                //set slider
+                currentImage = value;
+                OnPropertyChanged("CurrentImage");
+            }
+        }
+
+        /* //this method consumes too much procsesing and too slow
         private BitmapSource currentImage;
         public BitmapSource CurrentImage
         {
@@ -101,13 +160,14 @@ namespace fo_dicom_viewer.ViewModels
         #region Constructor  
         public Viewer2dViewModel()
         {
-
+        
         }
 
         public void cleanup()
         {
             _loadedBitmapSources = null;
-            _loadedDicomFiles = null; 
+            _loadedDicomFiles = null;
+            _loadedDicomImages = null;
         }
 
 
@@ -115,7 +175,65 @@ namespace fo_dicom_viewer.ViewModels
 
 
         #region functions
+        void DetermineMouseSensitivity()
+        {
+            //// Modify the 'sensitivity' of the mouse based on the current window width
+            //if (winWidth < 10)
+            //{
+            //    changeValWidth = 0.1;
+            //}
+            //else if (winWidth >= 20000)
+            //{
+            //    changeValWidth = 40;
+            //}
+            //else
+            //{
+            //    changeValWidth = 0.1 + (winWidth - 10) / 500.0;
+            //}
 
+            //changeValCentre = changeValWidth;
+        }
+
+        public void GenerateCurrentImage(Point initialMousePoint, Point currentMousePoint)
+        {
+            
+
+            var dicomImage = _loadedDicomImages[CurrentImageIndex];
+             
+             
+
+           // deltaX = (int)((initialMousePoint.X - currentMousePoint.X) * changeValWidth);
+            //deltaY = (int)((initialMousePoint.Y - currentMousePoint.Y) * changeValCentre);
+
+          
+
+
+
+
+
+
+
+
+
+
+
+
+           // dicomImage.WindowWidth = dicomImage.WindowWidth - deltaX;
+           // dicomImage.WindowCenter = dicomImage.WindowCenter - deltaY;
+
+            CurrentWindowWidth = dicomImage.WindowWidth;
+            CurrentWindowCentre = dicomImage.WindowCenter;
+
+
+
+
+            CurrentImage = dicomImage.RenderImage(0).AsWriteableBitmap();//there is a problem here that needs to be fixed, can't set to 0
+        }
+
+        public void GenerateCurrentImage()
+        {
+            CurrentImage = _loadedBitmapSources[Math.Max(CurrentImageIndex - 1, 0)];
+        }
 
         public void LoadDicomFilesFromPath(string path)
         {
@@ -133,6 +251,8 @@ namespace fo_dicom_viewer.ViewModels
         {
             //load dicom files from series 
             _loadedBitmapSources = new List<BitmapSource>();
+            _loadedDicomImages = new List<DicomImage>();
+
             NumberOfImages = 0;
 
             foreach (var dicomFile in series.Instances)
@@ -142,12 +262,23 @@ namespace fo_dicom_viewer.ViewModels
                     if (dicomFile.Dataset.Contains(DicomTag.PixelData))
                     {
                         var dicomImage = new DicomImage(dicomFile.Dataset);
-                        var frames = Enumerable.Range(0, dicomImage.NumberOfFrames).Select(frame => dicomImage.RenderImage(frame).As<WriteableBitmap>());
+
+                        CurrentWindowWidth = dicomImage.WindowWidth;
+                        CurrentWindowCentre = dicomImage.WindowCenter;
+
+                        for (int i = 0; i < dicomImage.NumberOfFrames; i++)
+                        {
+                            var frame = dicomImage.RenderImage(i).AsWriteableBitmap();
+                            _loadedBitmapSources.Add(frame);
+                            _loadedDicomImages.Add(dicomImage);
+                        }
+
+                        // var frames = Enumerable.Range(0, dicomImage.NumberOfFrames).Select(frame => dicomImage.RenderImage(frame).As<WriteableBitmap>());
 
                         //WriteableBitmap dicomBitmap = dicomImage.RenderImage(0).As<WriteableBitmap>();
-                       // _loadedBitmapSources.Add(dicomBitmap);
+                        // _loadedBitmapSources.Add(dicomBitmap);
 
-                        _loadedBitmapSources.AddRange(frames.ToList());
+                        //_loadedBitmapSources.AddRange(frames.ToList());
                     }
 
 
@@ -160,6 +291,7 @@ namespace fo_dicom_viewer.ViewModels
             }
 
             NumberOfImages = _loadedBitmapSources.Count;
+            //NumberOfImages = _loadedDicomImages.Count;
         }
 
 
@@ -190,7 +322,7 @@ namespace fo_dicom_viewer.ViewModels
 
             NumberOfImages = _loadedDicomFiles.Count;
         }
-         
+
 
 
         /// <summary>

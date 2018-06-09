@@ -14,6 +14,10 @@
 
     <Grid>
         <Grid  >
+            <Grid.RowDefinitions>
+                <RowDefinition Height="86*"/>
+                <RowDefinition Height="9*"/>
+            </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="40"/>
@@ -22,7 +26,10 @@
             <Image x:Name="ImageViewer"   
                    Source="{Binding CurrentImage}"  
                    MouseWheel="ImageViewer_MouseWheel" 
-                   StretchDirection="DownOnly"  />
+                   StretchDirection="DownOnly" 
+                   MouseMove="ImageViewer_MouseMove" 
+                   MouseRightButtonDown="ImageViewer_MouseRightButtonDown" 
+                   MouseRightButtonUp="ImageViewer_MouseRightButtonUp"   />
 
             <Slider x:Name="ImageSliderBar"  
                     Orientation="Vertical" 
@@ -32,7 +39,13 @@
                     SmallChange="1" 
                     Value="{Binding CurrentImageIndex, Mode=TwoWay}" 
                     HorizontalAlignment="Right" 
-                    Width="40"  />
+                    Width="40" Grid.RowSpan="2"  />
+
+            <Grid Grid.Row="1">
+                <TextBlock HorizontalAlignment="Left" Margin="21,10,0,0" TextWrapping="Wrap" Text="{Binding CurrentWindowWidth, StringFormat={}Window {0}}" VerticalAlignment="Top" Width="114"/>
+                <TextBlock HorizontalAlignment="Left" Margin="278,10,0,0" TextWrapping="Wrap" Text="{Binding CurrentWindowCentre, StringFormat={}Level {0}}"  VerticalAlignment="Top"/>
+
+            </Grid>
 
         </Grid>
 
